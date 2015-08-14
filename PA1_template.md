@@ -4,7 +4,7 @@
 
 1. Load the data
 
-To load the data, we use the read.csv() command and have a look to the data
+To load the data, we use the read.csv() command and have a look from the data
 
 
 ```r
@@ -45,7 +45,7 @@ head(dfActivityClean)
 ## 294     0 2012-10-02       25
 ```
 
-We use the plyr packages to sum the number of steps by date.
+We use the plyr packages to sum the number of steps by day.
 
 ```r
 dfActivityClean$date <- as.Date(format(dfActivityClean$date, format="%Y-%m-%d"))
@@ -72,7 +72,7 @@ head(totalStepsByDay)
 
 ```r
 library(ggplot2)
-ggplot(data=totalStepsByDay, aes(x = date, y =total)) + geom_histogram(stat = "identity") + theme(text = element_text(size=20), axis.text.x = element_text(angle=90, vjust=1))
+ggplot(data=totalStepsByDay, aes(x = date, y =total)) + geom_histogram(stat = "identity",, fill="#D55E00",colour="#0072B2") + theme(text = element_text(size=20))+ ggtitle("Number total of steps by day")
 ```
 
 ![](PA1_template_files/figure-html/plotTotalNumberStepsWithoutNa-1.png) 
@@ -185,8 +185,11 @@ print(na_count,type="html")
 ##    steps     date interval 
 ##     2304        0        0
 ```
-And with the above table, we can see only we have to fill in the steps column.
+
+With the above table, we can see only we have to fill in the steps column.
 Now we use the mean of each day to fill in the Nas. That's why we use the averageStepsByinterval data set in the third session. 
+
+We scan allthe row of the data set with for loop, we detect the line NA. We fill the value looking for the mean by internal (data set we've created).
 
 
 ```r
@@ -227,7 +230,7 @@ totalStepsByDayWithNa$total<-as.numeric(totalStepsByDayWithNa$total)
 totalStepsByDayWithNa$date<-as.Date(totalStepsByDayWithNa$date)
 totalStepsByDayWithNa$Source<-'NA'
 
-ggplot(data=totalStepsByDayWithNa, aes(x = factor(date), y =total)) + geom_histogram(stat = "identity")
+ggplot(data=totalStepsByDayWithNa, aes(x = date, y =total))+ geom_histogram(stat = "identity",, fill="#D55E00",colour="#0072B2") + theme(text = element_text(size=20))+ ggtitle("Number total of steps by day")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
@@ -303,6 +306,8 @@ ddply(dfActivity, .(date), summarize, total=sum(steps),mean=mean(steps),median=m
 
 Do these values differ from the estimates from the first part of the assignment?
 
+We have compared the two histograme (one removing missing value and the other fill it)
+
 
 ```r
 dataMerged<-rbind(totalStepsByDayWithNa,totalStepsByDay)
@@ -311,7 +316,7 @@ ggplot(data=dataMerged, aes(x = date, y =total,fill=Source)) + geom_histogram(st
 
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
 
-If we compare this two histograms we can this is the ame, except for the missing value (the red larger rectangles)
+If we compare this two histograms we can see this is the same, except for the missing value (the red larger rectangles)
 
 And the difference id about the median for each day (0 when we don't replace NA and differente from 0 from some date with the new data set)
 

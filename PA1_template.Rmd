@@ -9,7 +9,7 @@ output:
 
 1. Load the data
 
-To load the data, we use the read.csv() command and have a look to the data
+To load the data, we use the read.csv() command and have a look at the data
 
 ```{r}
 setwd("C:/Users/Roro7_000/Documents/MOOC/Reproducible research/Project1/RepData_PeerAssessment1/activity")
@@ -24,14 +24,14 @@ str(dfActivity)
 
 1.Calculate the total number of steps taken per day
 
-We remove row with NA in the data frame thanks to the complete.cases command.
+We remove row equals to NA in the data frame thanks to the complete.cases command.
 
 ```{r}
 dfActivityClean<-dfActivity[complete.cases(dfActivity),]
 head(dfActivityClean)
 ```
 
-We use the plyr packages to sum the number of steps by date.
+We use the plyr packages to sum the number of steps by day.
 ```{r totalNumberStepswithoutNa}
 
 dfActivityClean$date <- as.Date(format(dfActivityClean$date, format="%Y-%m-%d"))
@@ -43,11 +43,11 @@ totalStepsByDay$Source<-'NOT NA'
 head(totalStepsByDay)
 ```
 
-2. Histogram of the total number of steps taken each day
+2. Histogram of the total number of steps taken every day
 
 ```{r plotTotalNumberStepsWithoutNa}
 library(ggplot2)
-ggplot(data=totalStepsByDay, aes(x = date, y =total)) + geom_histogram(stat = "identity") + theme(text = element_text(size=20), axis.text.x = element_text(angle=90, vjust=1))
+ggplot(data=totalStepsByDay, aes(x = date, y =total)) + geom_histogram(stat = "identity",, fill="#D55E00",colour="#0072B2") + theme(text = element_text(size=20))+ ggtitle("Number total of steps by day")
 ```
 
 3.  The mean and median of the total number of steps taken per day
@@ -59,7 +59,7 @@ ddply(dfActivityClean, .(date), summarize, total=sum(steps),mean=mean(steps),med
 
 ## What is the average daily activity pattern?
 
-1. Average number of steps in function of interval
+1. Average number of steps depending on the interval
 ```{r plotDateIntervel}
 averageStepsByinterval<-ddply(dfActivityClean, .(interval), summarize, mean=mean(steps))
 
@@ -71,7 +71,7 @@ ggplot(data=averageStepsByinterval, aes(x = interval, y =mean)) +  geom_line()+g
  
  2.
 
-The 5-minute interval, on average across all the days in the dataset, which contains the maximum number of steps is `r invervalWithMaxStep` interval.
+The 5-minute interval, on average across all the days in the dataset, which contains the maximum number of steps is the `r invervalWithMaxStep` interval.
 
 ## Imputing missing values
 
@@ -97,8 +97,11 @@ na_count <-sapply(dfActivity, function(y) sum(length(which(is.na(y)))))
 print(na_count,type="html")
 
 ```
-And with the above table, we can see only we have to fill in the steps column.
-Now we use the mean of each day to fill in the Nas. That's why we use the averageStepsByinterval data set in the third session. 
+
+With the above table, we can see we only have to fill in the steps column.
+Now we use the mean of each day to fill the Nas. That's why we use the averageStepsByinterval data set in the third session. 
+
+We scan all the row of the data set with for loop, we detect the line NA. We fill the value looking for the mean by internal (data set we've created).
 
 ```{r newDataFrame}
 for(j in 1:nrow(dfActivity)){
@@ -126,12 +129,14 @@ totalStepsByDayWithNa$total<-as.numeric(totalStepsByDayWithNa$total)
 totalStepsByDayWithNa$date<-as.Date(totalStepsByDayWithNa$date)
 totalStepsByDayWithNa$Source<-'NA'
 
-ggplot(data=totalStepsByDayWithNa, aes(x = factor(date), y =total)) + geom_histogram(stat = "identity")
+ggplot(data=totalStepsByDayWithNa, aes(x = date, y =total))+ geom_histogram(stat = "identity",, fill="#D55E00",colour="#0072B2") + theme(text = element_text(size=20))+ ggtitle("Number total of steps by day")
 
 ddply(dfActivity, .(date), summarize, total=sum(steps),mean=mean(steps),median=median(steps))
 ```
 
 Do these values differ from the estimates from the first part of the assignment?
+
+We have compared the two histograme (one removing missing value and the other fill it)
 
 ```{r}
 dataMerged<-rbind(totalStepsByDayWithNa,totalStepsByDay)
@@ -139,7 +144,7 @@ ggplot(data=dataMerged, aes(x = date, y =total,fill=Source)) + geom_histogram(st
 
 ```
 
-If we compare this two histograms we can this is the ame, except for the missing value (the red larger rectangles)
+If we compare this two histograms we can see this is the same, except for the missing value (the red larger rectangles)
 
 And the difference id about the median for each day (0 when we don't replace NA and differente from 0 from some date with the new data set)
 
@@ -153,7 +158,7 @@ We use apply to scan all the data set and completed a new column "day" with "wee
 dfActivity[,"day"] <-apply(dfActivity, 1, function(x) if(weekdays(as.Date(x[2])) %in% c("lundi","mardi","mercredi","jeudi","vendredi")){ "weekday"}else{"weekend"})
 ```
 
-We plot he average number of steps taken per type of day:
+We plot the average number of steps taken per type of day:
 
 ```{r}
 final<-ddply(dfActivity, .(interval,day), summarize, mean=mean(steps))
